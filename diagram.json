@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "author": "Thomas",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-s3-devkitc-1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "chip-virtual", "id": "chip1", "top": -85.38, "left": -148.8, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "pot1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "pot1:VCC", "esp:3V3.1", "red", [ "v0" ] ],
+    [ "pot1:SIG", "esp:1", "green", [ "v0" ] ],
+    [ "chip1:NE", "esp:4", "green", [ "h0" ] ],
+    [ "chip1:G", "esp:5", "green", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,9 @@
+{
+  "name": "7afe-sim",
+  "author": "Thomas",
+  "pins": [
+    "NE",
+    "G"
+  ],
+  "controls": []
+}
