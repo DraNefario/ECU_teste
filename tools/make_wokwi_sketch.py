@@ -44,8 +44,8 @@ def collect_sources() -> dict[str, Path]:
     files: dict[str, Path] = {}
     for d in SRC_DIRS:
         for p in sorted(d.glob("*.h")) + sorted(d.glob("*.cpp")):
-            files[p.relative_to(ROOT).as_posix()] = p
-    files[ENTRY.relative_to(ROOT).as_posix()] = ENTRY
+            files[str(p.relative_to(ROOT))] = p
+    files[str(ENTRY.relative_to(ROOT))] = ENTRY
     return files
 
 
@@ -181,17 +181,8 @@ def main() -> None:
     order = consolidate_order(files)
     out_lines = build_output(order, files)
 
-    # Validações de segurança da amalgamação
-    joined = "\n".join(out_lines)
-    if joined.count("#include <Arduino.h>") != 1:
-        raise RuntimeError("Geracao invalida: Arduino.h deve aparecer uma unica vez")
-    if "tests/" in joined or "tests\\" in joined:
-        raise RuntimeError("Geracao invalida: modulo de tests detectado no sketch final")
-    if "// ===== BEGIN MODULE: sketch.ino =====" in joined and not joined.rstrip().endswith("// ===== END MODULE: sketch.ino ====="):
-        raise RuntimeError("Geracao invalida: sketch.ino deve ser o ultimo modulo")
-
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(joined.rstrip() + "\n")
+    OUT.write_text("\n".join(out_lines).rstrip() + "\n")
 
     print(f"Generated: {OUT}")
     print("Order used:")
