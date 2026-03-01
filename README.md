@@ -54,7 +54,7 @@ python tools/make_wokwi_sketch_heuristic.py
 1. Gere `wokwi/sketch.ino` com o script recomendado.
 2. Copie o conteúdo para o projeto Wokwi.
 3. Conexão do potenciômetro TPS:
-   - `SIG -> GPIO34`
+   - `SIG -> GPIO15`
    - `VCC -> 3V3`
    - `GND -> GND`
 4. Execute e monitore o Serial.

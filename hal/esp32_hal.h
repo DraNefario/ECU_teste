@@ -12,7 +12,7 @@ class Esp32Hal final : public IEcuHal {
   static constexpr int kPinG = 5;
   static constexpr int kPinIgt = 6;
   static constexpr int kPinInj = 7;
-  static constexpr int kPinTps = 34;
+  static constexpr int kPinTps = 15;
 
   Esp32Hal();
   void begin();
