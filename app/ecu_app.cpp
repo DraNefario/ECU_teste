@@ -21,8 +21,6 @@ TaskHandle_t fuelTaskHandle = nullptr;
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 bool injectorOn = false;
 bool fuelTaskAlive = false;
-uint16_t tpsLiveRaw = 0;
-uint8_t tpsLivePercent = 0;
 
 Calibration loadCalibration() {
   Calibration c;
@@ -78,26 +76,16 @@ void IRAM_ATTR onPulseNE() {
 void fuelTask(void *) {
   fuelTaskAlive = true;
   uint16_t tpsFiltered = 0;
-  bool tpsFilterInitialized = false;
 
   while (true) {
     const uint32_t notified = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));
     if (notified == 0) continue;
 
-    const uint16_t adcRaw = hal.readTpsRaw();
-    if (!tpsFilterInitialized) {
-      tpsFiltered = adcRaw;
-      tpsFilterInitialized = true;
-    } else {
-      tpsFiltered = static_cast<uint16_t>((3U * tpsFiltered + adcRaw) / 4U);
-    }
-
-    const Calibration c = core.calibration();
-    tpsLiveRaw = tpsFiltered;
-    tpsLivePercent = ecu::core::EcuMaps::tpsRawToPercent(tpsFiltered, c.tpsMinAdc, c.tpsMaxAdc);
-
     const auto &st = core.state();
     if (!st.sync || st.rpmPeriodUs == 0) continue;
+
+    const uint16_t adcRaw = hal.readTpsRaw();
+    tpsFiltered = static_cast<uint16_t>((3U * tpsFiltered + adcRaw) / 4U);
 
     const uint32_t pwUs = core.computeFuelPulseUs(tpsFiltered);
     hal.setInjectorPin(true);
@@ -184,13 +172,10 @@ void loopApp() {
     Serial.print(st.sync ? "[SYNC OK]" : "[NO SYNC]");
     Serial.print(" | RPM: ");
     Serial.print(ecu::core::EcuMaps::rpmFromPeriodUs(st.rpmPeriodUs));
-    const uint16_t tpsRawDisplay = st.sync ? st.tpsRaw : tpsLiveRaw;
-    const uint8_t tpsPctDisplay = st.sync ? st.tpsPercent : tpsLivePercent;
-
     Serial.print(" | TPSraw: ");
-    Serial.print(tpsRawDisplay);
+    Serial.print(st.tpsRaw);
     Serial.print(" | TPS%: ");
-    Serial.print(tpsPctDisplay);
+    Serial.print(st.tpsPercent);
     Serial.print(" | TPScal: ");
     Serial.print(core.calibration().tpsMinAdc);
     Serial.print("-");
